@@ -1,17 +1,30 @@
 //import Navbar from "./components/NavBar";
-import { Face } from "./components/Face";
+import { useRef, useState, useCallback } from "react";
+//import { Face } from "./components/FaceEmoji/Face";
 import Navbar from "./components/NavBar";
 
-const width = 160;
-const height = 160;
+const width = 960;
+const height = 500;
+const circleRadius = 30;
+const initialMousePosition = {
+  x: width / 2,
+  y: height / 2,
+};
 
-const array = [1, 2, 3, 4, 5];
+//const array = [1];
 
 const App = () => {
+  const [mousePosition, setMousePosition] = useState(initialMousePosition);
+
+  const handleMouseMove = useCallback((event:MouseEvent) => {
+    const { clientX, clientY } = event;
+    setMousePosition({ x: clientX, y: clientY });
+  },[setMousePosition]);
+
   return (
     <>
       <Navbar />
-      {array.map(() => (
+      {/* {array.map(() => (
         <Face
           width={width}
           height={height}
@@ -24,19 +37,12 @@ const App = () => {
           mouthWidth={7 + Math.random() * 9}
           mouthRadius={30 + Math.random() * 10}
         />
-      ))}
-      <Face
-        width={width}
-        height={height}
-        centerX={width / 2}
-        centerY={height / 2}
-        strokeWidth={6 + Math.random() * 3}
-        eyeOffsetX={20 + Math.random() * 9}
-        eyeOffsetY={20 + Math.random() * 15}
-        eyeRadius={5 + Math.random() * 10}
-        mouthWidth={7 + Math.random() * 9}
-        mouthRadius={30 + Math.random() * 10}
-      />
+      ))} */}
+
+      <svg width={width} height={height} onMouseMove={handleMouseMove}>
+        <circle cx={mousePosition.x} cy={mousePosition.y} r={circleRadius} />
+      </svg>
+
       {/* <div className="flex flex-col md:flex-row min-h-screen">
         <div className="md:flex-1 md:w-7/10 flex">
           <img

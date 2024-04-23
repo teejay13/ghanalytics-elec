@@ -1,4 +1,4 @@
-import { FC, useRef } from "react";
+import { FC } from "react";
 import { FaceContainer } from "./FaceContainer";
 import { BackgroundCircle } from "./BackgroundCircle";
 import { Eyes } from "./Eyes";
@@ -29,7 +29,7 @@ export const Face: FC<FaceProp> = ({
   mouthRadius,
   mouthWidth,
 }) => {
-  const ref = useRef();
+  
 
   return (
     <>
@@ -38,7 +38,6 @@ export const Face: FC<FaceProp> = ({
         height={height}
         centerX={centerX}
         centerY={centerY}
-        ref={ref}
       >
         <BackgroundCircle
           radius={centerY - strokeWidth / 2}
