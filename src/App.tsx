@@ -1,25 +1,23 @@
 //import Navbar from "./components/NavBar";
-import { useRef, useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 //import { Face } from "./components/FaceEmoji/Face";
 import Navbar from "./components/NavBar";
+import { csv, csvFormat } from "d3";
+import { message } from "./components/Message";
 
 const width = 960;
 const height = 500;
-const circleRadius = 30;
-const initialMousePosition = {
-  x: width / 2,
-  y: height / 2,
-};
+const csvUrl =
+  "https://gist.githubusercontent.com/teejay13/9c0861488a6faca51a4e31e5958dc4ee/raw/b86a2fb24b6bcbd9ec088b5da0ce5751502b5dc2/cssNamedColors.csv";
 
 //const array = [1];
 
 const App = () => {
-  const [mousePosition, setMousePosition] = useState(initialMousePosition);
+  const [data, setData] = useState(null);
 
-  const handleMouseMove = useCallback((event:MouseEvent) => {
-    const { clientX, clientY } = event;
-    setMousePosition({ x: clientX, y: clientY });
-  },[setMousePosition]);
+  useEffect(() => {
+    csv(csvUrl).then(setData);
+  }, []);
 
   return (
     <>
@@ -39,9 +37,9 @@ const App = () => {
         />
       ))} */}
 
-      <svg width={width} height={height} onMouseMove={handleMouseMove}>
-        <circle cx={mousePosition.x} cy={mousePosition.y} r={circleRadius} />
-      </svg>
+      <pre>Data is {data ? message(data) : "Loading"}</pre>
+
+      <Viz>
 
       {/* <div className="flex flex-col md:flex-row min-h-screen">
         <div className="md:flex-1 md:w-7/10 flex">

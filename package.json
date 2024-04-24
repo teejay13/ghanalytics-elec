@@ -11,11 +11,15 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@types/d3": "^7.4.3",
     "@types/d3-shape": "^3.1.6",
+    "d3": "^7.9.0",
     "d3-shape": "^3.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3"
+    "react-router-dom": "^6.22.3",
+    "vega": "^5.28.0",
+    "vega-lite-api": "^5.6.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
