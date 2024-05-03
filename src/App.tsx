@@ -1,33 +1,53 @@
-//import Navbar from "./components/NavBar";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 //import { Face } from "./components/FaceEmoji/Face";
 import Navbar from "./components/NavBar";
-import { arc, csv, csvFormat, pie } from "d3";
-import { message } from "./components/Message";
+import { csv, scaleBand, scaleLinear, max } from "d3";
+import { bottom, right } from "@popperjs/core";
 
 const width = 960;
 const height = 500;
-const centerX = width / 2;
-const centerY = height / 2;
+const margin = {
+  top: 20,
+  bottom: 20,
+  right: 20,
+  left: 200,
+};
+
 const csvUrl =
-  "https://gist.githubusercontent.com/teejay13/9c0861488a6faca51a4e31e5958dc4ee/raw/b86a2fb24b6bcbd9ec088b5da0ce5751502b5dc2/cssNamedColors.csv";
+  "https://gist.githubusercontent.com/teejay13/b9acd5fe0db96c9a2137a302c7fc34ee/raw/605c54080c7a93a417a3cea93fd52e7550e76500/UN_Population_2019.csv";
 
 //const array = [1];
-
-const pieArc = arc().innerRadius(0).outerRadius(width);
 
 const App = () => {
   const [data, setData] = useState(null);
 
+  const ref = useRef(null);
+
   useEffect(() => {
-    csv(csvUrl).then(setData);
+    const row = (d) => {
+      d.population = +d["2020"];
+      return d;
+    };
+    csv(csvUrl, row).then((data) => {
+      setData(data.slice(0, 10));
+    });
   }, []);
 
   if (!data) {
     return <pre>Loading..</pre>;
   }
 
-  const colorPie = pie().value(1);
+  const innerheight = height - margin.top - margin.bottom;
+
+  const innerwidth = width - margin.left - margin.right;
+
+  const yscale = scaleBand()
+    .domain(data.map((d) => d.Country))
+    .range([0, innerheight]);
+
+  const xscale = scaleLinear()
+    .domain([0, max(data, (d) => d.population)])
+    .range([0, innerwidth]);
 
   return (
     //   <>
@@ -48,9 +68,39 @@ const App = () => {
     //     ))} */}
 
     <svg width={width} height={height}>
-      <g transform={`translate(${centerX},${centerY})`}>
-        {colorPie(data).map((d) => (
-          <path fill={d.data["RGB hex value"]} d={pieArc(d)} />
+      <g transform={`translate(${margin.left},${margin.top})`}>
+        {xscale.ticks().map((tickvalue) => (
+          <g key={tickvalue} transform={`translate(${xscale(tickvalue)},0)`}>
+            <line y2={innerheight} stroke="black" />
+            <text
+              dy=".71em"
+              style={{ textAnchor: "middle" }}
+              y={innerheight + 3}
+            >
+              {tickvalue}
+            </text>
+          </g>
+        ))}
+
+        {yscale.domain().map((tickvalue) => (
+          <text
+            key={tickvalue}
+            style={{ textAnchor: "end" }}
+            dy=".32em"
+            x={-3}
+            y={yscale(tickvalue) + yscale.bandwidth() / 2}
+          >
+            {tickvalue}
+          </text>
+        ))}
+        {data.map((d) => (
+          <rect
+            key={d.Country}
+            x={0}
+            y={yscale(d.Country)}
+            width={xscale(d.population)}
+            height={yscale.bandwidth()}
+          />
         ))}
       </g>
     </svg>
