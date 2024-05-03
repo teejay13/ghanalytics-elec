@@ -1,37 +1,28 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 //import { Face } from "./components/FaceEmoji/Face";
 import Navbar from "./components/NavBar";
-import { csv, scaleBand, scaleLinear, max } from "d3";
-import { bottom, right } from "@popperjs/core";
+import { csv, scaleBand, scaleLinear, max, format } from "d3";
+import { UseData } from "./components/Population/UseData";
+import { AxisBottom } from "./components/Population/AxisBottom";
+import { AxisLeft } from "./components/Population/AxisLeft";
+import { Marks } from "./components/Population/Marks";
+import "./App.css";
 
 const width = 960;
 const height = 500;
 const margin = {
   top: 20,
-  bottom: 20,
-  right: 20,
-  left: 200,
+  bottom: 65,
+  right: 30,
+  left: 220,
 };
 
-const csvUrl =
-  "https://gist.githubusercontent.com/teejay13/b9acd5fe0db96c9a2137a302c7fc34ee/raw/605c54080c7a93a417a3cea93fd52e7550e76500/UN_Population_2019.csv";
+const xAxisLabelOfsset = 50;
 
 //const array = [1];
 
 const App = () => {
-  const [data, setData] = useState(null);
-
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const row = (d) => {
-      d.population = +d["2020"];
-      return d;
-    };
-    csv(csvUrl, row).then((data) => {
-      setData(data.slice(0, 10));
-    });
-  }, []);
+  const data = UseData();
 
   if (!data) {
     return <pre>Loading..</pre>;
@@ -41,12 +32,21 @@ const App = () => {
 
   const innerwidth = width - margin.left - margin.right;
 
+  const yValue = (d) => d.Country;
+
+  const xValue = (d) => d.population;
+
+  const siFormat = format('.2s')
+
+  const xAxisTickFormat = tickValue => siFormat(tickValue).replace('G','B')
+
   const yscale = scaleBand()
-    .domain(data.map((d) => d.Country))
-    .range([0, innerheight]);
+    .domain(data.map(yValue))
+    .range([0, innerheight])
+    .paddingInner(0.2);
 
   const xscale = scaleLinear()
-    .domain([0, max(data, (d) => d.population)])
+    .domain([0, max(data, xValue)])
     .range([0, innerwidth]);
 
   return (
@@ -69,39 +69,19 @@ const App = () => {
 
     <svg width={width} height={height}>
       <g transform={`translate(${margin.left},${margin.top})`}>
-        {xscale.ticks().map((tickvalue) => (
-          <g key={tickvalue} transform={`translate(${xscale(tickvalue)},0)`}>
-            <line y2={innerheight} stroke="black" />
-            <text
-              dy=".71em"
-              style={{ textAnchor: "middle" }}
-              y={innerheight + 3}
-            >
-              {tickvalue}
-            </text>
-          </g>
-        ))}
-
-        {yscale.domain().map((tickvalue) => (
-          <text
-            key={tickvalue}
-            style={{ textAnchor: "end" }}
-            dy=".32em"
-            x={-3}
-            y={yscale(tickvalue) + yscale.bandwidth() / 2}
-          >
-            {tickvalue}
-          </text>
-        ))}
-        {data.map((d) => (
-          <rect
-            key={d.Country}
-            x={0}
-            y={yscale(d.Country)}
-            width={xscale(d.population)}
-            height={yscale.bandwidth()}
-          />
-        ))}
+        <text className="axis-label" x={innerwidth / 2} y={innerheight + xAxisLabelOfsset} textAnchor="middle">
+          Population
+        </text>
+        <AxisBottom xscale={xscale} innerheight={innerheight} tickFormat={xAxisTickFormat}/>
+        <AxisLeft yscale={yscale} />
+        <Marks
+          xscale={xscale}
+          yscale={yscale}
+          data={data}
+          xValue={xValue}
+          yValue={yValue}
+          tooltipFormat={xAxisTickFormat}
+        />
       </g>
     </svg>
 
